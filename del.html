@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Raise Complaint</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .form-section { margin-bottom: 20px; }
+    .info-text { font-size: 0.9em; color: #555; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h2>Raise Complaint</h2>
+
+  <form id="complaintForm" method="POST" enctype="multipart/form-data">
+    <!-- Upload -->
+    <div class="form-section">
+      <label for="fileInput"><b>Upload Image</b></label><br>
+      <input type="file" id="fileInput" name="file" accept="image/*" required>
+    </div>
+
+    <!-- Department Dropdown (Auto-filled) -->
+    <div class="form-section">
+      <label for="department"><b>Department</b></label><br>
+      <select id="department" name="department" required>
+        <option value="">-- Select Department --</option>
+        <option value="Electricity Department">Electricity Department</option>
+        <option value="Forest Department">Forest Department</option>
+        <option value="Sanitation Department">Sanitation Department</option>
+        <option value="Infrastructure Department">Infrastructure Department</option>
+        <option value="Public Works Department">Public Works Department</option>
+        <option value="Water & Sewage Department">Water & Sewage Department</option>
+      </select>
+      <p id="aiMessage" class="info-text" style="display:none; color:green;">
+        ⚡ Our AI predicted this department automatically. You can change if it's incorrect.
+      </p>
+    </div>
+
+    <div class="form-section">
+      <button type="submit" id="submitButton">Submit Complaint</button>
+    </div>
+  </form>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const departmentSelect = document.getElementById("department");
+    const aiMessage = document.getElementById("aiMessage");
+
+    fileInput.addEventListener("change", async function() {
+      if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await response.json();
+          if (data.predicted_department) {
+            departmentSelect.value = data.predicted_department;
+            aiMessage.style.display = "block";
+          }
+        } catch (err) {
+          console.error("Prediction error:", err);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
